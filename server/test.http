@@ -1,0 +1,7 @@
+POST http://localhost:5000/api/v1/organizations
+Content-Type: application/json
+
+{
+  "name": "Google",
+  "email": "new@gmail.com"
+}

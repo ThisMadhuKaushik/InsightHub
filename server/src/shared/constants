@@ -1,0 +1,12 @@
+export const ROLES = {
+  OWNER: "OWNER",
+  ADMIN: "ADMIN",
+  MANAGER: "MANAGER",
+  EMPLOYEE: "EMPLOYEE",
+  VIEWER: "VIEWER",
+};
+export const STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  SUSPENDED: "SUSPENDED",
+};
