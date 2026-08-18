@@ -25,6 +25,7 @@ export const registerSchema = z.object({
 
     password: z
         .string()
+        .trim()
         .min(8, "Password must be at least 8 characters."),
 
     phone: z
@@ -33,4 +34,15 @@ export const registerSchema = z.object({
         .min(10)
         .max(20)
         .optional()
+});
+export const loginSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .email("Invalid email."),
+
+    password: z
+        .string()
+        .trim()
+        .min(8, "Password must be at least 8 characters."),
 });

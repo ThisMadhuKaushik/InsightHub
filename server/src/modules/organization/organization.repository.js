@@ -1,22 +1,28 @@
-
 import pool from "../../config/db.js";
 
-export async function createOrganization(data) {
-    const { name, slug, email,status,plan } = data;
+export async function createOrganization(data, db = pool) {
+    const { name, slug, email, status, plan } = data;
 
-    const result = await pool.query(
+    const { rows } = await db.query(
         `
-        INSERT INTO organizations (name, slug, email,status,plan)
-        VALUES ($1, $2, $3,$4,$5)
+        INSERT INTO organizations (
+            name,
+            slug,
+            email,
+            status,
+            plan
+        )
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *;
         `,
-        [name, slug, email,status,plan]
+        [name, slug, email, status, plan]
     );
 
-    return result.rows[0];
+    return rows[0];
 }
-export async function findOrganizationByEmail(email) {
-    const result = await pool.query(
+
+export async function findOrganizationByEmail(email, db = pool) {
+    const { rows } = await db.query(
         `
         SELECT *
         FROM organizations
@@ -25,11 +31,11 @@ export async function findOrganizationByEmail(email) {
         [email]
     );
 
-    return result.rows[0];
+    return rows[0];
 }
-export async function findOrganizationBySlug(slug) {
 
-    const result = await pool.query(
+export async function findOrganizationBySlug(slug, db = pool) {
+    const { rows } = await db.query(
         `
         SELECT id
         FROM organizations
@@ -38,6 +44,5 @@ export async function findOrganizationBySlug(slug) {
         [slug]
     );
 
-    return result.rows[0];
-
+    return rows[0];
 }

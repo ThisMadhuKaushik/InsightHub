@@ -1,5 +1,7 @@
-export async function findUserByEmail(email) {
-    const result = await pool.query(
+import pool from "../../config/db.js";
+
+export async function findUserByEmail(email, db = pool) {
+    const { rows } = await db.query(
         `
         SELECT *
         FROM users
@@ -8,22 +10,32 @@ export async function findUserByEmail(email) {
         [email]
     );
 
-    return result.rows[0];
+    return rows[0];
 }
-export async function findUserById(id) {
-    const result = await pool.query(
+export async function findUserById(id, db = pool) {
+
+    const { rows } = await db.query(
         `
-        SELECT *
+        SELECT
+            id,
+            organization_id,
+            name,
+            email,
+            phone,
+            role,
+            status,
+            last_login,
+            created_at,
+            updated_at
         FROM users
         WHERE id = $1;
         `,
         [id]
     );
 
-    return result.rows[0];
+    return rows[0];
 }
-
-export async function createUser(data) {
+export async function createUser(data, db = pool) {
     const {
         organization_id,
         name,
@@ -34,27 +46,57 @@ export async function createUser(data) {
         status
     } = data;
 
-
-    const result = await pool.query(
+    const { rows } = await db.query(
         `
-        INSERT INTO users (organization_id,
+        INSERT INTO users (
+            organization_id,
             name,
             email,
             password,
             phone,
             role,
-            status)
-        VALUES ($1, $2, $3,$4,$5,$6,$7)
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
         `,
-        [organization_id,
-        name,
-        email,
-        password,
-        phone,
-        role,
-        status]
+        [
+            organization_id,
+            name,
+            email,
+            password,
+            phone,
+            role,
+            status
+        ]
     );
 
-    return result.rows[0];
+    return rows[0];
+}
+export async function findUsersByOrganization(
+    organizationId,
+    db = pool
+) {
+
+    const { rows } = await db.query(
+        `
+        SELECT
+            id,
+            organization_id,
+            name,
+            email,
+            phone,
+            role,
+            status,
+            last_login,
+            created_at,
+            updated_at
+        FROM users
+        WHERE organization_id = $1
+        ORDER BY created_at DESC;
+        `,
+        [organizationId]
+    );
+
+    return rows;
 }

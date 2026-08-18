@@ -6,39 +6,41 @@ import { createOrganizationSchema } from "./organization.validation.js";
 
 import AppError from "../../errors/AppError.js";
 
-export async function createOrganization(data) {
+export async function createOrganization(data, db) {
 
-    // Step 1
     createOrganizationSchema.parse(data);
 
-    // Step 2
     const { name, email } = data;
 
-    // Step 3
-    const existingOrganization = await findOrganizationByEmail(email);
+    const existingOrganization = await findOrganizationByEmail(email, db);
 
     if (existingOrganization) {
-        throw new AppError("Organization email already exists.",409);
+        throw new AppError(
+            "Organization email already exists.",
+            409
+        );
     }
 
-    // Step 4
     const slug = slugify(name, {
         lower: true,
         strict: true,
     });
-   const existingSlug=await findOrganizationBySlug(slug);
-   if(existingSlug)
-   {
-    throw new AppError("Organization name already exists.",409);
-   }
-    // Step 5
+
+    const existingSlug = await findOrganizationBySlug(slug, db);
+
+    if (existingSlug) {
+        throw new AppError(
+            "Organization name already exists.",
+            409
+        );
+    }
+
     const organizationData = {
         ...data,
         slug,
         status: "ACTIVE",
         plan: "FREE",
-   };
+    };
 
-    // Step 6
-    return await createOrganizationRepository(organizationData);
+    return await createOrganizationRepository( organizationData, db);
 }
