@@ -33,9 +33,11 @@ export const createTaskSchema = z.object({
 
     status: z
         .enum([
-            "PENDING",
+            "TODO",
             "IN_PROGRESS",
+            "IN_REVIEW",
             "DONE",
+            "BLOCKED",
         ])
         .optional(),
 
