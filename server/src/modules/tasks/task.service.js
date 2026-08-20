@@ -4,7 +4,9 @@ import {
     findTasksByProject,
     findTaskById,
     updateTask as updateTaskRepository,
-     deleteTask as deleteTaskRepository,
+    deleteTask as deleteTaskRepository,
+    createSubtask,
+    findSubtasksByParentTask,
 } from "./task.repository.js";
 
 
@@ -247,6 +249,121 @@ export async function deleteTask(
 
     return await deleteTaskRepository(
         taskId,
+        projectId
+    );
+}
+
+export async function createSubtaskService(
+    projectId,
+    parentTaskId,
+    organizationId,
+    data
+) {
+
+    // Validate the subtask data
+    createTaskSchema.parse(data);
+
+    // Check project belongs to organization
+    const project = await findProjectById(
+        projectId,
+        organizationId
+    );
+
+    if (!project) {
+        throw new AppError(
+            "Project not found.",
+            404
+        );
+    }
+
+    // Check parent task belongs to this project
+    const parentTask = await findTaskById(
+        parentTaskId,
+        projectId
+    );
+
+    if (!parentTask) {
+        throw new AppError(
+            "Parent task not found.",
+            404
+        );
+    }
+
+    // Prevent subtask of another subtask
+    if (parentTask.parent_task_id !== null) {
+        throw new AppError(
+            "A subtask cannot have another subtask.",
+            400
+        );
+    }
+
+    // Check assigned user
+    if (data.assigned_to) {
+
+        const user = await findUserById(
+            data.assigned_to
+        );
+
+        if (
+            !user ||
+            user.organization_id !== organizationId
+        ) {
+            throw new AppError(
+                "Assigned user not found.",
+                404
+            );
+        }
+    }
+
+    const subtaskData = {
+        project_id: projectId,
+        parent_task_id: parentTaskId,
+        assigned_to: data.assigned_to || null,
+        title: data.title,
+        description: data.description || null,
+        priority: data.priority || "MEDIUM",
+        status: data.status || "TODO",
+        start_date: data.start_date || null,
+        due_date: data.due_date || null,
+    };
+
+    return await createSubtask(subtaskData);
+}
+
+export async function getSubtasks(
+    projectId,
+    parentTaskId,
+    organizationId
+) {
+
+    // Check project belongs to organization
+    const project = await findProjectById(
+        projectId,
+        organizationId
+    );
+
+    if (!project) {
+        throw new AppError(
+            "Project not found.",
+            404
+        );
+    }
+
+    // Check parent task belongs to project
+    const parentTask = await findTaskById(
+        parentTaskId,
+        projectId
+    );
+
+    if (!parentTask) {
+        throw new AppError(
+            "Parent task not found.",
+            404
+        );
+    }
+
+    return await findSubtasksByParentTask(
+        parentTaskId,
         projectId
     );
 }

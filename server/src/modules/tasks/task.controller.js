@@ -5,6 +5,8 @@ import {
     getTaskById,
     updateTask,
     deleteTask,
+    createSubtaskService,
+    getSubtasks,
 } from "./task.service.js";
 
 export async function createTaskController(req, res, next) {
@@ -113,6 +115,60 @@ export async function deleteTaskController(
         return res.status(200).json({
             success: true,
             data: task,
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+}
+
+export async function createSubtaskController(
+    req,
+    res,
+    next
+) {
+
+    try {
+
+        const subtask = await createSubtaskService(
+            req.params.projectId,
+            req.params.taskId,
+            req.user.organization_id,
+            req.body
+        );
+
+        return res.status(201).json({
+            success: true,
+            data: subtask,
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+}
+
+
+export async function getSubtasksController(
+    req,
+    res,
+    next
+) {
+
+    try {
+
+        const subtasks = await getSubtasks(
+            req.params.projectId,
+            req.params.taskId,
+            req.user.organization_id
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: subtasks,
         });
 
     } catch (error) {

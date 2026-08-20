@@ -166,3 +166,77 @@ export async function deleteTask(
 
     return rows[0];
 }
+
+export async function findSubtasksByParentTask(
+    parentTaskId,
+    projectId,
+    db = pool
+) {
+
+    const { rows } = await db.query(
+        `
+        SELECT
+            t.*,
+            u.name AS assigned_user_name,
+            u.email AS assigned_user_email
+        FROM tasks t
+        LEFT JOIN users u
+            ON u.id = t.assigned_to
+        WHERE t.parent_task_id = $1
+        AND t.project_id = $2
+        ORDER BY t.created_at ASC;
+        `,
+        [parentTaskId, projectId]
+    );
+
+    return rows;
+}
+
+export async function createSubtask(
+    data,
+    db = pool
+) {
+
+    const {
+        project_id,
+        parent_task_id,
+        assigned_to,
+        title,
+        description,
+        priority,
+        status,
+        start_date,
+        due_date,
+    } = data;
+
+    const { rows } = await db.query(
+        `
+        INSERT INTO tasks (
+            project_id,
+            parent_task_id,
+            assigned_to,
+            title,
+            description,
+            priority,
+            status,
+            start_date,
+            due_date
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *;
+        `,
+        [
+            project_id,
+            parent_task_id,
+            assigned_to,
+            title,
+            description,
+            priority,
+            status,
+            start_date,
+            due_date,
+        ]
+    );
+
+    return rows[0];
+}
