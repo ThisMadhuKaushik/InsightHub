@@ -1,9 +1,10 @@
+
 import {
     createTask,
     getTasks,
     getTaskById,
+    updateTask,
 } from "./task.service.js";
-
 
 export async function createTaskController(req, res, next) {
 
@@ -58,6 +59,28 @@ export async function getTaskByIdController(req, res, next) {
             req.params.taskId,
             req.params.projectId,
             req.user.organization_id
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: task,
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+}
+export async function updateTaskController(req, res, next) {
+
+    try {
+
+        const task = await updateTask(
+            req.params.taskId,
+            req.params.projectId,
+            req.user.organization_id,
+            req.body
         );
 
         return res.status(200).json({

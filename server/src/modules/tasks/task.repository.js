@@ -98,3 +98,53 @@ export async function findTaskById(
 
     return rows[0];
 }
+export async function updateTask(
+    taskId,
+    projectId,
+    data,
+    db = pool
+) {
+    const {
+        title,
+        description,
+        assigned_to,
+        priority,
+        status,
+        start_date,
+        due_date,
+        completed_at,
+    } = data;
+
+    const { rows } = await db.query(
+        `
+        UPDATE tasks
+        SET
+            title = COALESCE($1, title),
+            description = COALESCE($2, description),
+            assigned_to = COALESCE($3, assigned_to),
+            priority = COALESCE($4, priority),
+            status = COALESCE($5, status),
+            start_date = COALESCE($6, start_date),
+            due_date = COALESCE($7, due_date),
+            completed_at = COALESCE($8, completed_at),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $9
+        AND project_id = $10
+        RETURNING *;
+        `,
+        [
+            title,
+            description,
+            assigned_to,
+            priority,
+            status,
+            start_date,
+            due_date,
+            completed_at,
+            taskId,
+            projectId,
+        ]
+    );
+
+    return rows[0];
+}

@@ -4,6 +4,7 @@ import {
     createTaskController,
     getTasksController,
     getTaskByIdController,
+    updateTaskController,
 } from "./task.controller.js";
 
 import authenticate from "../../middlewares/authenticate.js";
@@ -31,5 +32,10 @@ router.get(
     getTaskByIdController
 );
 
+router.patch(
+    "/:projectId/tasks/:taskId",
+    authenticate,
+    updateTaskController
+);
 
 export default router;
