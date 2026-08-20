@@ -4,6 +4,7 @@ import {
     getTasks,
     getTaskById,
     updateTask,
+    deleteTask,
 } from "./task.service.js";
 
 export async function createTaskController(req, res, next) {
@@ -81,6 +82,32 @@ export async function updateTaskController(req, res, next) {
             req.params.projectId,
             req.user.organization_id,
             req.body
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: task,
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+}
+
+export async function deleteTaskController(
+    req,
+    res,
+    next
+) {
+
+    try {
+
+        const task = await deleteTask(
+            req.params.taskId,
+            req.params.projectId,
+            req.user.organization_id
         );
 
         return res.status(200).json({

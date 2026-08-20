@@ -148,3 +148,21 @@ export async function updateTask(
 
     return rows[0];
 }
+
+export async function deleteTask(
+    taskId,
+    projectId,
+    db = pool
+) {
+    const { rows } = await db.query(
+        `
+        DELETE FROM tasks
+        WHERE id = $1
+        AND project_id = $2
+        RETURNING *;
+        `,
+        [taskId, projectId]
+    );
+
+    return rows[0];
+}

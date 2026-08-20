@@ -5,6 +5,7 @@ import {
     getTasksController,
     getTaskByIdController,
     updateTaskController,
+    deleteTaskController,
 } from "./task.controller.js";
 
 import authenticate from "../../middlewares/authenticate.js";
@@ -38,4 +39,9 @@ router.patch(
     updateTaskController
 );
 
+router.delete(
+    "/:projectId/tasks/:taskId",
+    authenticate,
+    deleteTaskController
+);
 export default router;

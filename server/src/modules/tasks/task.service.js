@@ -4,6 +4,7 @@ import {
     findTasksByProject,
     findTaskById,
     updateTask as updateTaskRepository,
+     deleteTask as deleteTaskRepository,
 } from "./task.repository.js";
 
 
@@ -209,5 +210,43 @@ export async function updateTask(
         taskId,
         projectId,
         updateData
+    );
+}
+
+export async function deleteTask(
+    taskId,
+    projectId,
+    organizationId
+) {
+
+    // Check project belongs to organization
+    const project = await findProjectById(
+        projectId,
+        organizationId
+    );
+
+    if (!project) {
+        throw new AppError(
+            "Project not found.",
+            404
+        );
+    }
+
+    // Check task belongs to project
+    const task = await findTaskById(
+        taskId,
+        projectId
+    );
+
+    if (!task) {
+        throw new AppError(
+            "Task not found.",
+            404
+        );
+    }
+
+    return await deleteTaskRepository(
+        taskId,
+        projectId
     );
 }
