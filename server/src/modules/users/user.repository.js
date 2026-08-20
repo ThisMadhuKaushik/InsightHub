@@ -100,3 +100,32 @@ export async function findUsersByOrganization(
 
     return rows;
 }
+export async function updateUser(
+    id,
+    data,
+    db = pool
+) {
+    const {
+        name,
+        phone,
+    } = data;
+
+    const { rows } = await db.query(
+        `
+        UPDATE users
+        SET
+            name = COALESCE($1, name),
+            phone = COALESCE($2, phone),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $3
+        RETURNING *;
+        `,
+        [
+            name,
+            phone,
+            id,
+        ]
+    );
+
+    return rows[0];
+}

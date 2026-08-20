@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
     getAllUsers,
     getSingleUser,
+    updateUserController,
 } from "./user.controller.js";
 
 import authenticate from "../../middlewares/authenticate.js";
@@ -21,4 +22,9 @@ router.get(
     getSingleUser
 );
 
+router.patch(
+    "/:id",
+    authenticate,
+    updateUserController
+);
 export default router;
