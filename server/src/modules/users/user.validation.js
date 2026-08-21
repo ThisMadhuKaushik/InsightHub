@@ -33,19 +33,3 @@ export const updateUserSchema = z.object({
         ])
         .optional(),
 });
-export const updateUserSchema = z.object({
-
-    name: z
-        .string()
-        .trim()
-        .min(3, "Name must be at least 3 characters.")
-        .max(100)
-        .optional(),
-
-    phone: z
-        .string()
-        .trim()
-        .min(10, "Phone number must be at least 10 characters.")
-        .max(20)
-        .optional(),
-});

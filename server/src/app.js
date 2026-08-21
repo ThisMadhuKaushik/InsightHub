@@ -7,6 +7,7 @@ import projectRoutes from "./modules/projects/project.routes.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import projectMemberRoutes from "./modules/project-members/projectMember.routes.js";
 import taskRoutes from "./modules/tasks/task.routes.js";
+import commentRoutes from "./modules/comments/comment.routes.js";
 const app = express();
 
 app.use(express.json());
@@ -17,6 +18,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/projects",projectMemberRoutes);
 app.use("/api/v1/projects", taskRoutes);
+app.use("/api/v1/projects",commentRoutes);
 app.use(errorHandler);
 
 export default app;
