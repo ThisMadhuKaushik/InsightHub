@@ -9,6 +9,7 @@ import {
     findSubtasksByParentTask,
 } from "./task.repository.js";
 
+import { logActivity } from "../activity/activity.service.js";
 
 import { createTaskSchema ,updateTaskSchema} from "./task.validation.js";
 
@@ -21,8 +22,9 @@ import AppError from "../../errors/AppError.js";
 export async function createTask(
     projectId,
     organizationId,
+    userId,
     data
-) {
+){
 
     createTaskSchema.parse(data);
 
@@ -85,7 +87,29 @@ export async function createTask(
         due_date: data.due_date || null,
     };
 
-    return await createTaskRepository(taskData);
+    const task = await createTaskRepository(taskData);
+
+    await logActivity({
+
+        organization_id: organizationId,
+
+        user_id: userId,
+
+        project_id: projectId,
+
+        task_id: task.id,
+
+        action: "TASK_CREATED",
+
+        entity_type: "TASK",
+
+        entity_id: task.id,
+
+        metadata: null,
+
+    });
+
+    return task;
 }
 export async function getTasks(
     projectId,
@@ -138,82 +162,117 @@ export async function getTaskById(
 
     return task;
 }
-
-export async function updateTask(
-    taskId,
-    projectId,
-    organizationId,
-    data
+ export async function updateTask(
+taskId,
+projectId,
+organizationId,
+userId,
+data
 ) {
 
-    // Validate update data
-    updateTaskSchema.parse(data);
+// Validate update data
+updateTaskSchema.parse(data);
 
-    // Check project belongs to organization
-    const project = await findProjectById(
-        projectId,
-        organizationId
-    );
+// Check project belongs to organization
+const project = await findProjectById(
+    projectId,
+    organizationId
+);
 
-    if (!project) {
-        throw new AppError(
-            "Project not found.",
-            404
-        );
-    }
-
-    // Check task belongs to this project
-    const existingTask = await findTaskById(
-        taskId,
-        projectId
-    );
-
-    if (!existingTask) {
-        throw new AppError(
-            "Task not found.",
-            404
-        );
-    }
-
-    // Check assigned user if provided
-    if (data.assigned_to) {
-
-        const user = await findUserById(
-            data.assigned_to
-        );
-
-        if (
-            !user ||
-            user.organization_id !== organizationId
-        ) {
-            throw new AppError(
-                "Assigned user not found.",
-                404
-            );
-        }
-    }
-
-    // Prepare update data
-    const updateData = {
-        title: data.title,
-        description: data.description,
-        assigned_to: data.assigned_to,
-        priority: data.priority,
-        status: data.status,
-        start_date: data.start_date,
-        due_date: data.due_date,
-        completed_at:
-            data.status === "DONE"
-                ? new Date()
-                : undefined,
-    };
-
-    return await updateTaskRepository(
-        taskId,
-        projectId,
-        updateData
+if (!project) {
+    throw new AppError(
+        "Project not found.",
+        404
     );
 }
+
+// Get the existing task BEFORE updating it
+const existingTask = await findTaskById(
+    taskId,
+    projectId
+);
+
+if (!existingTask) {
+    throw new AppError(
+        "Task not found.",
+        404
+    );
+}
+
+// Check assigned user if provided
+if (data.assigned_to) {
+
+    const user = await findUserById(
+        data.assigned_to
+    );
+
+    if (
+        !user ||
+        user.organization_id !== organizationId
+    ) {
+        throw new AppError(
+            "Assigned user not found.",
+            404
+        );
+    }
+}
+
+// Prepare update data
+const updateData = {
+    title: data.title,
+    description: data.description,
+    assigned_to: data.assigned_to,
+    priority: data.priority,
+    status: data.status,
+    start_date: data.start_date,
+    due_date: data.due_date,
+    completed_at:
+        data.status === "DONE"
+            ? new Date()
+            : undefined,
+};
+
+// Update the task
+const updatedTask = await updateTaskRepository(
+    taskId,
+    projectId,
+    updateData
+);
+
+
+// Create activity log
+if (existingTask.status !== updatedTask.status) {
+
+await logActivity({
+
+organization_id: organizationId,
+
+user_id: userId,
+
+project_id: projectId,
+
+task_id: updatedTask.id,
+
+action: updatedTask.status === "DONE" ? "TASK_COMPLETED" : "TASK_UPDATED",
+
+entity_type: "TASK",
+
+entity_id: updatedTask.id,
+
+metadata: {
+
+old_status: existingTask.status,
+
+new_status: updatedTask.status,
+
+},
+
+});
+
+
+return updatedTask;
+
+}}
 
 export async function deleteTask(
     taskId,

@@ -16,9 +16,10 @@ export async function createTaskController(req, res, next) {
         const task = await createTask(
             req.params.projectId,
             req.user.organization_id,
+            req.user.id,
             req.body
         );
-
+        
         return res.status(201).json({
             success: true,
             data: task,
@@ -83,6 +84,7 @@ export async function updateTaskController(req, res, next) {
             req.params.taskId,
             req.params.projectId,
             req.user.organization_id,
+            req.user.id,
             req.body
         );
 
