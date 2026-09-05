@@ -51,26 +51,31 @@ export async function createTask(data, db = pool) {
 
 // GET ALL TASKS OF A PROJECT
 export async function findTasksByProject(
-    projectId,
-    db = pool
+projectId,
+page = 1,
+limit = 10,
+db = pool
 ) {
+    const offset = (page - 1) * limit;
 
-    const { rows } = await db.query(
-        `
-        SELECT
-            t.*,
-            u.name AS assigned_user_name,
-            u.email AS assigned_user_email
-        FROM tasks t
-        LEFT JOIN users u
-            ON u.id = t.assigned_to
-        WHERE t.project_id = $1
-        ORDER BY t.created_at DESC;
-        `,
-        [projectId]
-    );
+const { rows } = await db.query(
+    `
+    SELECT
+        t.*,
+        u.name AS assigned_user_name,
+        u.email AS assigned_user_email
+    FROM tasks t
+    LEFT JOIN users u
+        ON u.id = t.assigned_to
+    WHERE t.project_id = $1
+    ORDER BY t.created_at DESC
+    LIMIT $2
+    OFFSET $3;
+    `,
+    [projectId, limit, offset]
+);
 
-    return rows;
+return rows;
 }
 
 

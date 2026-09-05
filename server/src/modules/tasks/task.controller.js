@@ -1,181 +1,135 @@
-
 import {
-    createTask,
-    getTasks,
-    getTaskById,
-    updateTask,
-    deleteTask,
-    createSubtaskService,
-    getSubtasks,
+  createTask,
+  getTasks,
+  getTaskById,
+  updateTask,
+  deleteTask,
+  createSubtaskService,
+  getSubtasks,
 } from "./task.service.js";
 
 export async function createTaskController(req, res, next) {
+  try {
+    const task = await createTask(
+      req.params.projectId,
+      req.user.organization_id,
+      req.user.id,
+      req.body,
+    );
 
-    try {
-
-        const task = await createTask(
-            req.params.projectId,
-            req.user.organization_id,
-            req.user.id,
-            req.body
-        );
-        
-        return res.status(201).json({
-            success: true,
-            data: task,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(201).json({
+      success: true,
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
-
 
 export async function getTasksController(req, res, next) {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
-    try {
+    const tasks = await getTasks(
+      req.params.projectId,
+      req.user.organization_id,
+      page,
+      limit,
+    );
 
-        const tasks = await getTasks(
-            req.params.projectId,
-            req.user.organization_id
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: tasks,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(200).json({
+      success: true,
+      data: tasks,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
-
 
 export async function getTaskByIdController(req, res, next) {
+  try {
+    const task = await getTaskById(
+      req.params.taskId,
+      req.params.projectId,
+      req.user.organization_id,
+    );
 
-    try {
-
-        const task = await getTaskById(
-            req.params.taskId,
-            req.params.projectId,
-            req.user.organization_id
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: task,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(200).json({
+      success: true,
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 export async function updateTaskController(req, res, next) {
+  try {
+    const task = await updateTask(
+      req.params.taskId,
+      req.params.projectId,
+      req.user.organization_id,
+      req.user.id,
+      req.body,
+    );
 
-    try {
-
-        const task = await updateTask(
-            req.params.taskId,
-            req.params.projectId,
-            req.user.organization_id,
-            req.user.id,
-            req.body
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: task,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(200).json({
+      success: true,
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
-export async function deleteTaskController(
-    req,
-    res,
-    next
-) {
+export async function deleteTaskController(req, res, next) {
+  try {
+    const task = await deleteTask(
+      req.params.taskId,
+      req.params.projectId,
+      req.user.organization_id,
+    );
 
-    try {
-
-        const task = await deleteTask(
-            req.params.taskId,
-            req.params.projectId,
-            req.user.organization_id
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: task,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(200).json({
+      success: true,
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
-export async function createSubtaskController(
-    req,
-    res,
-    next
-) {
+export async function createSubtaskController(req, res, next) {
+  try {
+    const subtask = await createSubtaskService(
+      req.params.projectId,
+      req.params.taskId,
+      req.user.organization_id,
+      req.body,
+    );
 
-    try {
-
-        const subtask = await createSubtaskService(
-            req.params.projectId,
-            req.params.taskId,
-            req.user.organization_id,
-            req.body
-        );
-
-        return res.status(201).json({
-            success: true,
-            data: subtask,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(201).json({
+      success: true,
+      data: subtask,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
+export async function getSubtasksController(req, res, next) {
+  try {
+    const subtasks = await getSubtasks(
+      req.params.projectId,
+      req.params.taskId,
+      req.user.organization_id,
+    );
 
-export async function getSubtasksController(
-    req,
-    res,
-    next
-) {
-
-    try {
-
-        const subtasks = await getSubtasks(
-            req.params.projectId,
-            req.params.taskId,
-            req.user.organization_id
-        );
-
-        return res.status(200).json({
-            success: true,
-            data: subtasks,
-        });
-
-    } catch (error) {
-
-        next(error);
-
-    }
+    return res.status(200).json({
+      success: true,
+      data: subtasks,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
