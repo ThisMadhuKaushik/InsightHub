@@ -1,23 +1,21 @@
 import pool from "../../config/db.js";
 
-
 // CREATE TASK
 export async function createTask(data, db = pool) {
+  const {
+    project_id,
+    parent_task_id,
+    assigned_to,
+    title,
+    description,
+    priority,
+    status,
+    start_date,
+    due_date,
+  } = data;
 
-    const {
-        project_id,
-        parent_task_id,
-        assigned_to,
-        title,
-        description,
-        priority,
-        status,
-        start_date,
-        due_date,
-    } = data;
-
-    const { rows } = await db.query(
-        `
+  const { rows } = await db.query(
+    `
         INSERT INTO tasks (
             project_id,
             parent_task_id,
@@ -32,38 +30,38 @@ export async function createTask(data, db = pool) {
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *;
         `,
-        [
-            project_id,
-            parent_task_id,
-            assigned_to,
-            title,
-            description,
-            priority,
-            status,
-            start_date,
-            due_date,
-        ]
-    );
+    [
+      project_id,
+      parent_task_id,
+      assigned_to,
+      title,
+      description,
+      priority,
+      status,
+      start_date,
+      due_date,
+    ],
+  );
 
-    return rows[0];
+  return rows[0];
 }
-
 
 // GET ALL TASKS OF A PROJECT
 export async function findTasksByProject(
-projectId,
-page = 1,
-limit = 10,
-db = pool
+  projectId,
+  page = 1,
+  limit = 10,
+  db = pool,
 ) {
-    const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-const { rows } = await db.query(
+  const { rows } = await db.query(
     `
     SELECT
         t.*,
         u.name AS assigned_user_name,
-        u.email AS assigned_user_email
+        u.email AS assigned_user_email,
+        COUNT(*) OVER() AS total_count
     FROM tasks t
     LEFT JOIN users u
         ON u.id = t.assigned_to
@@ -72,22 +70,16 @@ const { rows } = await db.query(
     LIMIT $2
     OFFSET $3;
     `,
-    [projectId, limit, offset]
-);
+    [projectId, limit, offset],
+  );
 
-return rows;
+  return rows;
 }
 
-
 // GET ONE TASK
-export async function findTaskById(
-    taskId,
-    projectId,
-    db = pool
-) {
-
-    const { rows } = await db.query(
-        `
+export async function findTaskById(taskId, projectId, db = pool) {
+  const { rows } = await db.query(
+    `
         SELECT
             t.*,
             u.name AS assigned_user_name,
@@ -98,30 +90,25 @@ export async function findTaskById(
         WHERE t.id = $1
         AND t.project_id = $2;
         `,
-        [taskId, projectId]
-    );
+    [taskId, projectId],
+  );
 
-    return rows[0];
+  return rows[0];
 }
-export async function updateTask(
-    taskId,
-    projectId,
-    data,
-    db = pool
-) {
-    const {
-        title,
-        description,
-        assigned_to,
-        priority,
-        status,
-        start_date,
-        due_date,
-        completed_at,
-    } = data;
+export async function updateTask(taskId, projectId, data, db = pool) {
+  const {
+    title,
+    description,
+    assigned_to,
+    priority,
+    status,
+    start_date,
+    due_date,
+    completed_at,
+  } = data;
 
-    const { rows } = await db.query(
-        `
+  const { rows } = await db.query(
+    `
         UPDATE tasks
         SET
             title = COALESCE($1, title),
@@ -137,49 +124,44 @@ export async function updateTask(
         AND project_id = $10
         RETURNING *;
         `,
-        [
-            title,
-            description,
-            assigned_to,
-            priority,
-            status,
-            start_date,
-            due_date,
-            completed_at,
-            taskId,
-            projectId,
-        ]
-    );
+    [
+      title,
+      description,
+      assigned_to,
+      priority,
+      status,
+      start_date,
+      due_date,
+      completed_at,
+      taskId,
+      projectId,
+    ],
+  );
 
-    return rows[0];
+  return rows[0];
 }
 
-export async function deleteTask(
-    taskId,
-    projectId,
-    db = pool
-) {
-    const { rows } = await db.query(
-        `
+export async function deleteTask(taskId, projectId, db = pool) {
+  const { rows } = await db.query(
+    `
         DELETE FROM tasks
         WHERE id = $1
         AND project_id = $2
         RETURNING *;
         `,
-        [taskId, projectId]
-    );
+    [taskId, projectId],
+  );
 
-    return rows[0];
+  return rows[0];
 }
 
 export async function findSubtasksByParentTask(
-    parentTaskId,
-    projectId,
-    db = pool
+  parentTaskId,
+  projectId,
+  db = pool,
 ) {
-
-    const { rows } = await db.query(
-        `
+  const { rows } = await db.query(
+    `
         SELECT
             t.*,
             u.name AS assigned_user_name,
@@ -191,31 +173,27 @@ export async function findSubtasksByParentTask(
         AND t.project_id = $2
         ORDER BY t.created_at ASC;
         `,
-        [parentTaskId, projectId]
-    );
+    [parentTaskId, projectId],
+  );
 
-    return rows;
+  return rows;
 }
 
-export async function createSubtask(
-    data,
-    db = pool
-) {
+export async function createSubtask(data, db = pool) {
+  const {
+    project_id,
+    parent_task_id,
+    assigned_to,
+    title,
+    description,
+    priority,
+    status,
+    start_date,
+    due_date,
+  } = data;
 
-    const {
-        project_id,
-        parent_task_id,
-        assigned_to,
-        title,
-        description,
-        priority,
-        status,
-        start_date,
-        due_date,
-    } = data;
-
-    const { rows } = await db.query(
-        `
+  const { rows } = await db.query(
+    `
         INSERT INTO tasks (
             project_id,
             parent_task_id,
@@ -230,18 +208,18 @@ export async function createSubtask(
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *;
         `,
-        [
-            project_id,
-            parent_task_id,
-            assigned_to,
-            title,
-            description,
-            priority,
-            status,
-            start_date,
-            due_date,
-        ]
-    );
+    [
+      project_id,
+      parent_task_id,
+      assigned_to,
+      title,
+      description,
+      priority,
+      status,
+      start_date,
+      due_date,
+    ],
+  );
 
-    return rows[0];
+  return rows[0];
 }

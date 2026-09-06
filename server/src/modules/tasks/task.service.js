@@ -92,7 +92,23 @@ export async function getTasks(
     throw new AppError("Project not found.", 404);
   }
 
-  return await findTasksByProject(projectId, page, limit);
+  const tasks = await findTasksByProject(projectId, page, limit);
+
+  const total = tasks.length > 0 ? Number(tasks[0].total_count) : 0;
+
+  const totalPages = Math.ceil(total / limit);
+
+  const cleanTasks = tasks.map(({ total_count, ...task }) => task);
+
+  return {
+    tasks: cleanTasks,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
 }
 export async function getTaskById(taskId, projectId, organizationId) {
   const project = await findProjectById(projectId, organizationId);
