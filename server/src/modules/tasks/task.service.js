@@ -85,6 +85,9 @@ export async function getTasks(
   organizationId,
   page = 1,
   limit = 10,
+  status,
+  priority,
+  search,
 ) {
   const project = await findProjectById(projectId, organizationId);
 
@@ -92,7 +95,14 @@ export async function getTasks(
     throw new AppError("Project not found.", 404);
   }
 
-  const tasks = await findTasksByProject(projectId, page, limit);
+  const tasks = await findTasksByProject(
+    projectId,
+    page,
+    limit,
+    status,
+    priority,
+    search,
+  );
 
   const total = tasks.length > 0 ? Number(tasks[0].total_count) : 0;
 

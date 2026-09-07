@@ -8,6 +8,8 @@ import {
   getSubtasks,
 } from "./task.service.js";
 
+import { taskQuerySchema } from "./task.validation.js";
+
 export async function createTaskController(req, res, next) {
   try {
     const task = await createTask(
@@ -28,14 +30,15 @@ export async function createTaskController(req, res, next) {
 
 export async function getTasksController(req, res, next) {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-
+    const query = taskQuerySchema.parse(req.query);
     const tasks = await getTasks(
       req.params.projectId,
       req.user.organization_id,
-      page,
-      limit,
+      query.page,
+      query.limit,
+      query.status,
+      query.priority,
+      query.search,
     );
 
     return res.status(200).json({

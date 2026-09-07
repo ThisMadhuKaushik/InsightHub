@@ -51,6 +51,9 @@ export async function findTasksByProject(
   projectId,
   page = 1,
   limit = 10,
+  status,
+  priority,
+  search,
   db = pool,
 ) {
   const offset = (page - 1) * limit;
@@ -66,11 +69,25 @@ export async function findTasksByProject(
     LEFT JOIN users u
         ON u.id = t.assigned_to
     WHERE t.project_id = $1
+      AND ($4::text IS NULL OR t.status = $4)
+      AND ($5::text IS NULL OR t.priority = $5)
+      AND (
+          $6::text IS NULL
+          OR t.title ILIKE '%' || $6 || '%'
+          OR t.description ILIKE '%' || $6 || '%'
+      )
     ORDER BY t.created_at DESC
     LIMIT $2
     OFFSET $3;
     `,
-    [projectId, limit, offset],
+    [
+      projectId,
+      limit,
+      offset,
+      status || null,
+      priority || null,
+      search || null,
+    ],
   );
 
   return rows;
