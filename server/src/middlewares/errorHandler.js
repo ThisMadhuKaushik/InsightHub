@@ -1,14 +1,12 @@
-
-export default function errorHandler( error, req, res,next) {
+export default function errorHandler(error, req, res, next) {
+    console.error("API Error:", error);
+    console.error("Error message:", error?.message);
+    console.error("Error stack:", error?.stack);
 
     const statusCode = error.statusCode || 500;
 
-    res.status(statusCode).json({
-
+    return res.status(statusCode).json({
         success: false,
-
-        message: error.message
-
+        message: error.message || "Internal Server Error",
     });
-
 }
