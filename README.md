@@ -1,6 +1,6 @@
 # 🚀 InsightHub
 
-A scalable multi-tenant SaaS Project Management backend built with Node.js, Express.js, PostgreSQL, JWT, Redis, Docker, and RBAC.
+A scalable multi-tenant SaaS Project Management backend built with Node.js, Express.js, PostgreSQL, JWT, Docker, and RBAC.
 
 ## ✨ Features
 
@@ -23,7 +23,6 @@ A scalable multi-tenant SaaS Project Management backend built with Node.js, Expr
 - Node.js
 - Express.js
 - PostgreSQL
-- Redis
 - JWT
 - Zod
 - bcrypt
